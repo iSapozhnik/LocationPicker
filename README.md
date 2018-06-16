@@ -1,4 +1,4 @@
-![](Assets/screenshot.png)
+![](Assets/screen.png)
 
 # LocationPicker
 
