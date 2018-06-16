@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FF4507ED20D5522B00FDE247 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = FF4507EC20D5522B00FDE247 /* README.md */; };
 		FF5FA0CD20D517CB0038443E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5FA0CC20D517CB0038443E /* AppDelegate.swift */; };
 		FF5FA0CF20D517CB0038443E /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5FA0CE20D517CB0038443E /* ViewController.swift */; };
 		FF5FA0D220D517CB0038443E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FF5FA0D020D517CB0038443E /* Main.storyboard */; };
@@ -21,6 +22,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		FF4507EC20D5522B00FDE247 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		FF5FA0C920D517CB0038443E /* MapRadar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MapRadar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FF5FA0CC20D517CB0038443E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		FF5FA0CE20D517CB0038443E /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -50,6 +52,7 @@
 		FF5FA0C020D517CB0038443E = {
 			isa = PBXGroup;
 			children = (
+				FF4507EC20D5522B00FDE247 /* README.md */,
 				FF5FA0CB20D517CB0038443E /* MapRadar */,
 				FF5FA0CA20D517CB0038443E /* Products */,
 			);
@@ -167,6 +170,7 @@
 			files = (
 				FF5FA0D720D517CB0038443E /* LaunchScreen.storyboard in Resources */,
 				FF5FA0D420D517CB0038443E /* Assets.xcassets in Resources */,
+				FF4507ED20D5522B00FDE247 /* README.md in Resources */,
 				FF5FA0D220D517CB0038443E /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
