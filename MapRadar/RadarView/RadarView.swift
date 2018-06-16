@@ -77,15 +77,15 @@ class RadarView: UIView {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
         
-        UIView.animate(withDuration: 0.3) {
-            self.radiusLabel.alpha = 1.0
-        }
-        
         guard let touch = touches.first else { return }
         
         previousLocation = touch.location(in: self)
         
         if draggerView.frame.contains(previousLocation) {
+            UIView.animate(withDuration: 0.3) {
+                self.radiusLabel.alpha = 1.0
+            }
+            
             draggerView.highlighted = true
         }
     }
@@ -107,8 +107,11 @@ class RadarView: UIView {
             currentValue = boundValue(value: currentValue, minValue: minimumValue, maxValue: maximumValue)
             
             print("Current value: \(currentValue)")
+            
             currentRadiusInMeters = min(max(minimumRadiusInMeters, (maximumRadiusInMeters - minimumRadiusInMeters) * Double(currentValue)), maximumRadiusInMeters)
+            
             radiusLabel.text = "\(Int(currentRadiusInMeters)) m"
+            
             onChangeRadiusInMeters?()
         }
     }
@@ -116,9 +119,9 @@ class RadarView: UIView {
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesEnded(touches, with: event)
         
-        UIView.animate(withDuration: 0.3) {
+        UIView.animate(withDuration: 0.3, delay: 1.0, options: [], animations: {
             self.radiusLabel.alpha = 0.0
-        }
+        }, completion: nil)
         draggerView.highlighted = false
     }
     
@@ -143,6 +146,7 @@ class RadarView: UIView {
         addSubview(draggerView)
         
         radiusLabel.textColor = .white
+        radiusLabel.text = "\(Int(currentRadiusInMeters)) m"
         radiusLabel.layer.cornerRadius = 3.0
         radiusLabel.alpha = 0.0
         radiusLabel.layer.masksToBounds = true
@@ -164,7 +168,6 @@ class RadarView: UIView {
         radiusLabelFrame.origin.y = radiusLabelFrame.origin.y - (draggerSize/2 + 15)
         radiusLabelFrame.size.width = 50.0
         radiusLabel.frame = radiusLabelFrame
-
     }
     
     private func updateLayersFrame() {
