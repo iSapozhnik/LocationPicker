@@ -28,12 +28,37 @@ class RadarViewLayer: CALayer {
         ctx.addPath(path.cgPath)
         ctx.strokePath()
         
+        let shadowWidth: CGFloat = 8.0
+        let shadowHeight: CGFloat = 4.0
+        let rect = CGRect(x: bounds.width / 2 - shadowWidth / 2, y: bounds.height / 2 - shadowHeight / 2, width: shadowWidth, height: shadowHeight)
+        let shadowPath = UIBezierPath(ovalIn: rect)
+        ctx.addPath(shadowPath.cgPath)
+        ctx.setFillColor(UIColor.gray.cgColor)
+        ctx.fillPath()
+        
+        let pinHeight: CGFloat = 20.0
+        
+        let pinPath = UIBezierPath()
+        pinPath.move(to: CGPoint(x: bounds.width / 2, y: bounds.height / 2))
+        pinPath.addLine(to: CGPoint(x: bounds.width / 2, y: bounds.height / 2 - pinHeight))
+        
+        ctx.setLineCap(.round)
+        ctx.setLineWidth(1.0)
+        ctx.setStrokeColor(UIColor.gray.cgColor)
+        ctx.addPath(pinPath.cgPath)
+        ctx.strokePath()
+        
         let dotSize: CGFloat = 6.0
-        let dotRect = CGRect(x: bounds.width / 2 - dotSize / 2, y: bounds.height / 2 - dotSize / 2, width: dotSize, height: dotSize)
+        let dotRect = CGRect(x: bounds.width / 2 - dotSize / 2, y: bounds.height / 2 - dotSize / 2 - pinHeight, width: dotSize, height: dotSize)
         let dotPath = UIBezierPath(ovalIn: dotRect)
         
-        ctx.setFillColor(UIColor.black.cgColor)
+        ctx.setFillColor(RGB(r: 242, g: 65, b: 65).color.cgColor)
+        ctx.setStrokeColor(RGB(r: 201, g: 7, b: 7).color.cgColor)
+
         ctx.addPath(dotPath.cgPath)
+        ctx.setLineWidth(1.0)
         ctx.fillPath()
+        ctx.addPath(dotPath.cgPath)
+        ctx.strokePath()
     }
 }
