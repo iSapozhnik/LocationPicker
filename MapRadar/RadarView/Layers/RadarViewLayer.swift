@@ -33,7 +33,7 @@ class RadarViewLayer: CALayer {
         let rect = CGRect(x: bounds.width / 2 - shadowWidth / 2, y: bounds.height / 2 - shadowHeight / 2, width: shadowWidth, height: shadowHeight)
         let shadowPath = UIBezierPath(ovalIn: rect)
         ctx.addPath(shadowPath.cgPath)
-        ctx.setFillColor(UIColor.gray.cgColor)
+        ctx.setFillColor(UIColor.darkGray.cgColor)
         ctx.fillPath()
         
         let pinHeight: CGFloat = 20.0

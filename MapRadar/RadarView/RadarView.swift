@@ -25,8 +25,13 @@ class RadarView: UIView {
     var maximumValue: CGFloat = 1.0
     var currentValue: CGFloat = 0.11
     
-    var onChangeRadiusInMeters: (() -> Void)? = nil
     
+    var onChangeRadiusInMeters: ((CGFloat) -> Void)? = nil
+    var onStartUpdatingRadius: (() -> Void)?
+    var onStopUpdatingRadius: (() -> Void)?
+    
+    var minRadius: CGFloat = 0.0
+    var maxRadius: CGFloat = 0.0
     var radius: CGFloat = Constants.defaultRadius {
         didSet {
             updateLayersFrame()
@@ -82,6 +87,8 @@ class RadarView: UIView {
         previousLocation = touch.location(in: self)
         
         if draggerView.frame.contains(previousLocation) {
+            onStartUpdatingRadius?()
+            
             UIView.animate(withDuration: 0.3) {
                 self.radiusLabel.alpha = 1.0
             }
@@ -94,7 +101,7 @@ class RadarView: UIView {
         super.touchesMoved(touches, with: event)
         
         guard let touch = touches.first else { return }
-
+        
         let location = touch.location(in: self)
         
         let deltaLocation = CGFloat(location.y - previousLocation.y)
@@ -107,18 +114,22 @@ class RadarView: UIView {
             currentValue = boundValue(value: currentValue, minValue: minimumValue, maxValue: maximumValue)
             
             print("Current value: \(currentValue)")
+//            print("Delta value: \(deltaLocation)")
+
             
             currentRadiusInMeters = min(max(minimumRadiusInMeters, (maximumRadiusInMeters - minimumRadiusInMeters) * Double(currentValue)), maximumRadiusInMeters)
             
             radiusLabel.text = "\(Int(currentRadiusInMeters)) m"
             
-            onChangeRadiusInMeters?()
+            onChangeRadiusInMeters?(currentValue)
         }
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesEnded(touches, with: event)
         
+        onStopUpdatingRadius?()
+
         UIView.animate(withDuration: 0.3, delay: 1.0, options: [], animations: {
             self.radiusLabel.alpha = 0.0
         }, completion: nil)
