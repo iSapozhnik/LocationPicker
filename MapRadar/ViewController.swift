@@ -11,7 +11,7 @@ import MapKit
 
 class ViewController: UIViewController {
     @IBOutlet weak var mapView: MKMapView!
-    @IBOutlet weak var radarView: RadarView!
+    @IBOutlet weak var locationPickerView: LocationPicker!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,15 +25,15 @@ class ViewController: UIViewController {
 //        let circle = MKCircle(center: userCoordinate, radius: region.radius)
 //        mapView.add(circle)
         
-        radarView.currentRadiusInMeters = 100
+        locationPickerView.currentRadiusInMeters = 100
         updateRadius(0.0)
         
-        radarView.onChangeRadiusInMeters = { [weak self] currentValue in
+        locationPickerView.onChangeRadiusInMeters = { [weak self] currentValue in
             self?.updateRadius(currentValue)
         }
         
-        radarView.onStopUpdatingRadius = { [weak self] in
-            guard let center = self?.mapView.centerCoordinate, let radius = self?.radarView.currentRadiusInMeters else { return }
+        locationPickerView.onStopUpdatingRadius = { [weak self] in
+            guard let center = self?.mapView.centerCoordinate, let radius = self?.locationPickerView.currentRadiusInMeters else { return }
             let viewRegion = MKCoordinateRegionMakeWithDistance(center, 2.5*radius, 2.5*radius)
             let adjustedRegion = self?.mapView.regionThatFits(viewRegion)
             self?.mapView.setRegion(adjustedRegion!, animated: true)
@@ -43,7 +43,7 @@ class ViewController: UIViewController {
 
 extension ViewController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
-        updateRadius(radarView.currentValue)
+        updateRadius(locationPickerView.currentValue)
     }
     
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
@@ -67,10 +67,10 @@ extension ViewController: MKMapViewDelegate {
     
     private func updateRadius(_ currentValue: CGFloat) {
         if (zoomLevel() < 14 ) {
-            radarView.isHidden = true
+            locationPickerView.isHidden = true
             return
         } else {
-            radarView.isHidden = false
+            locationPickerView.isHidden = false
         }
         
 //        let coordinate = mapView.centerCoordinate
@@ -86,9 +86,9 @@ extension ViewController: MKMapViewDelegate {
 //        radarView.radius = radius
 //
 //        return
-            let regionFromRadar = MKCoordinateRegionMakeWithDistance(mapView.centerCoordinate, radarView.currentRadiusInMeters, radarView.currentRadiusInMeters)
+            let regionFromRadar = MKCoordinateRegionMakeWithDistance(mapView.centerCoordinate, locationPickerView.currentRadiusInMeters, locationPickerView.currentRadiusInMeters)
             let radarRect = mapView.convertRegion(regionFromRadar, toRectTo: nil)
-            radarView.radius = radarRect.width
+            locationPickerView.radius = radarRect.width
     }
 }
 

@@ -10,7 +10,7 @@ import UIKit
 import QuartzCore
 
 class RadarViewLayer: CALayer {
-    weak var radarView: RadarView!
+    weak var radarView: LocationPicker!
     
     override func draw(in ctx: CGContext) {
         super.draw(in: ctx)

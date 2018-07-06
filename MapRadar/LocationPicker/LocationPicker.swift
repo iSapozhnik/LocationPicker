@@ -1,5 +1,5 @@
 //
-//  RadarView.swift
+//  LocationPicker.swift
 //  MapRadar
 //
 //  Created by Ivan Sapozhnik on 6/16/18.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class RadarView: UIView {
+class LocationPicker: UIView {
     private struct Constants {
         static let defaultStrokeColor = RGB(r: 9, g: 82, b: 86).color
         static let defaultFillColor = RGB(r: 8, g: 127, b: 140).color.withAlphaComponent(0.3)
