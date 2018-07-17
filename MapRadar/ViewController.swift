@@ -24,6 +24,9 @@ class ViewController: UIViewController {
         super.viewDidLoad()
 
         locationPickerView.updateRadius(150.0, animated: false)
+        locationPickerView.minRadius = 30.0
+        let padding: CGFloat = 5.0
+        locationPickerView.maxRadius = UIScreen.main.bounds.width / 2 - padding
 
         let userCoordinate = CLLocationCoordinate2DMake(48.138428, 11.615363)
         let viewRegion = MKCoordinateRegionMakeWithDistance(userCoordinate, 500, 500)
@@ -36,31 +39,15 @@ class ViewController: UIViewController {
 //        mapView.add(circle)
 
         locationPickerView.onChangeRadiusInPoints = { [weak self] radiusInPoints in
-
-
             let centerPoint = self!.mapView.convert(self!.locationPickerView.center, toCoordinateFrom: self!.locationPickerView)
             let centerBottomPoint = self!.mapView.convert(CGPoint(x: self!.locationPickerView.center.x, y: self!.locationPickerView.center.y + radiusInPoints), toCoordinateFrom: self!.locationPickerView)
             return centerPoint.distance(from: centerBottomPoint)
-//
-//            let center = MKMapPointForCoordinate(centerPoint)
-//            let bottom = MKMapPointForCoordinate(centerBottomPoint)
-//
-//            return MKMetersBetweenMapPoints(center, bottom)
-
-//            let centerLocation = CLLocation(latitude: centerPoint.latitude, longitude: centerPoint.longitude)
-//            print("centerLocation = \(centerLocation)")
-//
-//            let bottomCenterLocation = CLLocation(latitude: centerBottomPoint.latitude, longitude: centerBottomPoint.longitude)
-//
-//            let radius =  CLLocationDistance(bottomCenterLocation.distance(to: centerLocation))
-//
-//            return radius
         }
         
         locationPickerView.onStopUpdatingRadius = { [weak self] in
             guard let mapView = self?.mapView, let radiusInMeters = self?.locationPickerView.currentRadiusInMeters else { return }
 
-            let viewRegion = MKCoordinateRegionMakeWithDistance(mapView.centerCoordinate, 3 * radiusInMeters, 3 * radiusInMeters)
+            let viewRegion = MKCoordinateRegionMakeWithDistance(mapView.centerCoordinate, 4 * radiusInMeters, 4 * radiusInMeters)
             let adjustedRegion = self?.mapView.regionThatFits(viewRegion)
             self?.mapView.setRegion(adjustedRegion!, animated: true)
         }

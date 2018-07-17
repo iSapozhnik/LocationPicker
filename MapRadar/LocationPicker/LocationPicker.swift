@@ -113,6 +113,7 @@ class LocationPicker: UIView {
         
         if draggerView.highlighted {
             radius += deltaLocation
+            radius = boundValue(value: radius, minValue: minRadius, maxValue: maxRadius)
             updateRadius(radius, animated: false)
 //            currentValue += deltaValue
 //            currentValue = boundValue(value: currentValue, minValue: minimumValue, maxValue: maximumValue)
