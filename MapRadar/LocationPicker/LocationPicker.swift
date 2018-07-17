@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import MapKit
 
 class LocationPicker: UIView {
     private struct Constants {
@@ -27,6 +28,7 @@ class LocationPicker: UIView {
     
     
     var onChangeRadiusInMeters: ((CGFloat) -> Void)? = nil
+    var onChangeRadiusInPoints: ((CGFloat) -> CLLocationDistance)!
     var onStartUpdatingRadius: (() -> Void)?
     var onStopUpdatingRadius: (() -> Void)?
     
@@ -105,23 +107,26 @@ class LocationPicker: UIView {
         let location = touch.location(in: self)
         
         let deltaLocation = CGFloat(location.y - previousLocation.y)
-        let deltaValue = (maximumValue - minimumValue) * deltaLocation / CGFloat(radarLayer.bounds.height - draggerSize)
+//        let deltaValue = (maximumValue - minimumValue) * deltaLocation / CGFloat(radarLayer.bounds.height - draggerSize)
         
         previousLocation = location
         
         if draggerView.highlighted {
-            currentValue += deltaValue
-            currentValue = boundValue(value: currentValue, minValue: minimumValue, maxValue: maximumValue)
-            
-            print("Current value: \(currentValue)")
+            radius += deltaLocation
+//            currentValue += deltaValue
+//            currentValue = boundValue(value: currentValue, minValue: minimumValue, maxValue: maximumValue)
+
+//            print("Current value: \(currentValue)")
 //            print("Delta value: \(deltaLocation)")
 
-            
-            currentRadiusInMeters = min(max(minimumRadiusInMeters, (maximumRadiusInMeters - minimumRadiusInMeters) * Double(currentValue)), maximumRadiusInMeters)
-            
-            radiusLabel.text = "\(Int(currentRadiusInMeters)) m"
-            
-            onChangeRadiusInMeters?(currentValue)
+            let meters = onChangeRadiusInPoints(radius)
+            let roundedMeters = 10 * (meters/10).rounded()
+            currentRadiusInMeters = meters//min(max(minimumRadiusInMeters, meters), maximumRadiusInMeters)
+
+
+//            currentRadiusInMeters = min(max(minimumRadiusInMeters, (maximumRadiusInMeters - minimumRadiusInMeters) * Double(currentValue)), maximumRadiusInMeters)
+
+            radiusLabel.text = "\(Int(roundedMeters)) m"
         }
     }
     
@@ -184,7 +189,7 @@ class LocationPicker: UIView {
     private func updateLayersFrame() {
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        
+
         let radarFrame = CGRect(x: bounds.width / 2 - radius, y: bounds.height / 2 - radius, width: 2 * radius, height: 2 * radius)
         
         radarLayer.frame = radarFrame
