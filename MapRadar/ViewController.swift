@@ -49,7 +49,7 @@ class ViewController: UIViewController {
 
             let viewRegion = MKCoordinateRegionMakeWithDistance(mapView.centerCoordinate, 4 * radiusInMeters, 4 * radiusInMeters)
             let adjustedRegion = self?.mapView.regionThatFits(viewRegion)
-            self?.mapView.setRegion(adjustedRegion!, animated: true)
+            self?.mapView.setRegion(adjustedRegion!, animated: false)
         }
     }
 }
@@ -69,12 +69,6 @@ extension ViewController: MKMapViewDelegate {
     }
     
     private func updateRadius(_ currentValue: CGFloat) {
-        if (zoomLevel() < 14 ) {
-            locationPickerView.isHidden = true
-            return
-        } else {
-            locationPickerView.isHidden = false
-        }
 
         let regionFromRadar = MKCoordinateRegionMakeWithDistance(mapView.centerCoordinate, locationPickerView.currentRadiusInMeters, locationPickerView.currentRadiusInMeters)
         let radarRect = mapView.convertRegion(regionFromRadar, toRectTo: locationPickerView)
