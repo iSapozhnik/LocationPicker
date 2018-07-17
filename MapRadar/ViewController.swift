@@ -23,7 +23,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        locationPickerView.radius = 100.0
+        locationPickerView.updateRadius(150.0, animated: false)
 
         let userCoordinate = CLLocationCoordinate2DMake(48.138428, 11.615363)
         let viewRegion = MKCoordinateRegionMakeWithDistance(userCoordinate, 500, 500)
@@ -34,11 +34,6 @@ class ViewController: UIViewController {
 //        mapView.removeOverlays(mapView.overlays)
 //        let circle = MKCircle(center: userCoordinate, radius: region.radius)
 //        mapView.add(circle)
-
-
-        locationPickerView.onChangeRadiusInMeters = { [weak self] currentValue in
-            self?.updateRadius(currentValue)
-        }
 
         locationPickerView.onChangeRadiusInPoints = { [weak self] radiusInPoints in
 
@@ -76,16 +71,6 @@ extension ViewController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
         updateRadius(locationPickerView.radius)
     }
-    
-//    func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
-//        guard let circelOverLay = overlay as? MKCircle else {return MKOverlayRenderer()}
-//
-//        let circleRenderer = MKCircleRenderer(circle: circelOverLay)
-//        circleRenderer.strokeColor = .blue
-//        circleRenderer.lineWidth = 1.0
-//        circleRenderer.fillColor = UIColor.blue.withAlphaComponent(0.3)
-//        return circleRenderer
-//    }
 
     private func zoomLevel() -> Int {
         return Int(log2(360 * (Double(mapView.bounds.width / 256) / mapView.region.span.longitudeDelta)) + 1)
@@ -103,23 +88,10 @@ extension ViewController: MKMapViewDelegate {
         } else {
             locationPickerView.isHidden = false
         }
-        
-//        let coordinate = mapView.centerCoordinate
-//
-//        let minPossibleRegion = MKCoordinateRegionMakeWithDistance(coordinate, radarView.minimumRadiusInMeters, radarView.minimumRadiusInMeters)
-//        let minRadius = mapView.convertRegion(minPossibleRegion, toRectTo: nil).width
-//
-//        let maxPossibleRegion = MKCoordinateRegionMakeWithDistance(coordinate, radarView.maximumRadiusInMeters, radarView.maximumRadiusInMeters)
-//        let maxRadius = mapView.convertRegion(maxPossibleRegion, toRectTo: nil).width
-//
-//
-//        let radius = (maxRadius - minRadius) * currentValue
-//        radarView.radius = radius
-//
-//        return
-            let regionFromRadar = MKCoordinateRegionMakeWithDistance(mapView.centerCoordinate, locationPickerView.currentRadiusInMeters, locationPickerView.currentRadiusInMeters)
-            let radarRect = mapView.convertRegion(regionFromRadar, toRectTo: locationPickerView)
-            locationPickerView.radius = radarRect.width 
+
+        let regionFromRadar = MKCoordinateRegionMakeWithDistance(mapView.centerCoordinate, locationPickerView.currentRadiusInMeters, locationPickerView.currentRadiusInMeters)
+        let radarRect = mapView.convertRegion(regionFromRadar, toRectTo: locationPickerView)
+        locationPickerView.updateRadius(radarRect.width, animated: true)
     }
 }
 

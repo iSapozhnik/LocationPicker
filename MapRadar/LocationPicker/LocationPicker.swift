@@ -26,20 +26,14 @@ class LocationPicker: UIView {
     var maximumValue: CGFloat = 1.0
     var currentValue: CGFloat = 0.11
     
-    
-    var onChangeRadiusInMeters: ((CGFloat) -> Void)? = nil
     var onChangeRadiusInPoints: ((CGFloat) -> CLLocationDistance)!
     var onStartUpdatingRadius: (() -> Void)?
     var onStopUpdatingRadius: (() -> Void)?
     
     var minRadius: CGFloat = 0.0
     var maxRadius: CGFloat = 0.0
-    var radius: CGFloat = Constants.defaultRadius {
-        didSet {
-            updateLayersFrame()
-            updateViewsFrame()
-        }
-    }
+    private (set)var radius: CGFloat = Constants.defaultRadius
+
     var borderWidth: CGFloat = Constants.defaultBorderWidth {
         didSet {
             radarLayer.setNeedsDisplay()
@@ -80,6 +74,12 @@ class LocationPicker: UIView {
         
         commonInit()
     }
+
+    func updateRadius(_ radius: CGFloat, animated: Bool) {
+        self.radius = radius
+        updateLayersFrame(animated: animated)
+        updateViewsFrame()
+    }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
@@ -113,6 +113,7 @@ class LocationPicker: UIView {
         
         if draggerView.highlighted {
             radius += deltaLocation
+            updateRadius(radius, animated: false)
 //            currentValue += deltaValue
 //            currentValue = boundValue(value: currentValue, minValue: minimumValue, maxValue: maximumValue)
 
@@ -186,9 +187,11 @@ class LocationPicker: UIView {
         radiusLabel.frame = radiusLabelFrame
     }
     
-    private func updateLayersFrame() {
+    private func updateLayersFrame(animated: Bool = false) {
         CATransaction.begin()
-        CATransaction.setDisableActions(true)
+        if !animated {
+            CATransaction.setDisableActions(true)
+        }
 
         let radarFrame = CGRect(x: bounds.width / 2 - radius, y: bounds.height / 2 - radius, width: 2 * radius, height: 2 * radius)
         
