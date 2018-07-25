@@ -19,6 +19,9 @@ extension CLLocationCoordinate2D {
 class ViewController: UIViewController {
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var locationPickerView: LocationPicker!
+    @IBOutlet weak var coordinateLabel: UILabel!
+
+    let initialCoordinate = CLLocationCoordinate2DMake(48.138428, 11.615363)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -28,15 +31,14 @@ class ViewController: UIViewController {
         let padding: CGFloat = 5.0
         locationPickerView.maxRadius = UIScreen.main.bounds.width / 2 - padding
 
-        let userCoordinate = CLLocationCoordinate2DMake(48.138428, 11.615363)
-        let viewRegion = MKCoordinateRegionMakeWithDistance(userCoordinate, 500, 500)
+        let viewRegion = MKCoordinateRegionMakeWithDistance(initialCoordinate, 500, 500)
         let adjustedRegion = mapView.regionThatFits(viewRegion)
         mapView.setRegion(adjustedRegion, animated: true)
 //
-//        let region = CLCircularRegion(center: userCoordinate, radius: 100, identifier: "geofence")
-//        mapView.removeOverlays(mapView.overlays)
-//        let circle = MKCircle(center: userCoordinate, radius: region.radius)
-//        mapView.add(circle)
+        let region = CLCircularRegion(center: initialCoordinate, radius: 5, identifier: "geofence")
+        mapView.removeOverlays(mapView.overlays)
+        let circle = MKCircle(center: initialCoordinate, radius: region.radius)
+        mapView.add(circle)
 
         locationPickerView.onChangeRadiusInPoints = { [weak self] radiusInPoints in
             let centerPoint = self!.mapView.convert(self!.locationPickerView.center, toCoordinateFrom: self!.locationPickerView)
@@ -47,16 +49,44 @@ class ViewController: UIViewController {
         locationPickerView.onStopUpdatingRadius = { [weak self] in
             guard let mapView = self?.mapView, let radiusInMeters = self?.locationPickerView.currentRadiusInMeters else { return }
 
-            let viewRegion = MKCoordinateRegionMakeWithDistance(mapView.centerCoordinate, 4 * radiusInMeters, 4 * radiusInMeters)
+            var point = self!.locationPickerView.center
+//            point.y -= 20
+
+            let center = mapView.convert(point, toCoordinateFrom: nil)
+            let viewRegion = MKCoordinateRegionMakeWithDistance(center, 4 * radiusInMeters, 4 * radiusInMeters)
             let adjustedRegion = self?.mapView.regionThatFits(viewRegion)
             self?.mapView.setRegion(adjustedRegion!, animated: false)
+
+            let initialCoordinate = self!.initialCoordinate
+//            self?.coordinateLabel.text = (mapView.centerCoordinate.latitude == initialCoordinate.latitude) && (mapView.centerCoordinate.longitude == initialCoordinate.longitude) ? "The same" : "Not the same"
+            self?.checkCoordinates()
         }
+    }
+
+    func checkCoordinates() {
+        let rect = mapView.convertRegion(MKCoordinateRegionMakeWithDistance(initialCoordinate, 0.5, 0.5), toRectTo: nil)
+        let point = mapView.convert(mapView.centerCoordinate, toPointTo: nil)
+
+        coordinateLabel.text = rect.contains(point) ? "The same" : "Not the same"
+
+        print("initial: \(initialCoordinate)\n current: \(mapView.centerCoordinate)\ndistance: \(initialCoordinate.distance(from: mapView.centerCoordinate))")
     }
 }
 
 extension ViewController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
         updateRadius(locationPickerView.radius)
+        checkCoordinates()
+    }
+
+    func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
+        guard let circelOverLay = overlay as? MKCircle else {return MKOverlayRenderer()}
+
+        let circleRenderer = MKCircleRenderer(circle: circelOverLay)
+        circleRenderer.strokeColor = .blue
+        circleRenderer.lineWidth = 1.0
+        circleRenderer.fillColor = UIColor.blue.withAlphaComponent(0.3)
+        return circleRenderer
     }
 
     private func zoomLevel() -> Int {
