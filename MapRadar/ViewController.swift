@@ -20,6 +20,8 @@ class ViewController: UIViewController {
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var locationPickerView: LocationPicker!
     @IBOutlet weak var coordinateLabel: UILabel!
+    var annotationLocationPickerView: LocationPicker!
+
 
     let initialCoordinate = CLLocationCoordinate2DMake(48.138428, 11.615363)
     
@@ -34,11 +36,15 @@ class ViewController: UIViewController {
         let viewRegion = MKCoordinateRegionMakeWithDistance(initialCoordinate, 500, 500)
         let adjustedRegion = mapView.regionThatFits(viewRegion)
         mapView.setRegion(adjustedRegion, animated: true)
-//
-        let region = CLCircularRegion(center: initialCoordinate, radius: 5, identifier: "geofence")
-        mapView.removeOverlays(mapView.overlays)
-        let circle = MKCircle(center: initialCoordinate, radius: region.radius)
-        mapView.add(circle)
+
+//        let region = CLCircularRegion(center: initialCoordinate, radius: 5, identifier: "geofence")
+//        mapView.removeOverlays(mapView.overlays)
+//        let circle = MKCircle(center: initialCoordinate, radius: region.radius)
+//        mapView.add(circle)
+
+        let annotation = MKPointAnnotation()
+        annotation.coordinate = initialCoordinate
+        mapView.addAnnotation(annotation)
 
         locationPickerView.onChangeRadiusInPoints = { [weak self] radiusInPoints in
             let centerPoint = self!.mapView.convert(self!.locationPickerView.center, toCoordinateFrom: self!.locationPickerView)
@@ -87,6 +93,48 @@ extension ViewController: MKMapViewDelegate {
         circleRenderer.lineWidth = 1.0
         circleRenderer.fillColor = UIColor.blue.withAlphaComponent(0.3)
         return circleRenderer
+    }
+
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        // Don't want to show a custom image if the annotation is the user's location.
+        guard !(annotation is MKUserLocation) else {
+            return nil
+        }
+
+        // Better to make this class property
+        let annotationIdentifier = "LocationPickerAnnotationView"
+
+        var annotationView: LocationPicker?
+        guard let locationPicker = self.annotationLocationPickerView else {
+            let locationPicker = LocationPicker(annotation: annotation, reuseIdentifier: annotationIdentifier)
+            locationPicker.frame = mapView.bounds
+            self.annotationLocationPickerView = locationPicker
+
+            locationPicker.onChangeRadiusInPoints = { [weak self] radiusInPoints in
+                let centerPoint = annotation.coordinate
+                let centerBottomPoint = self!.mapView.convert(CGPoint(x: locationPicker.center.x, y: locationPicker.center.y + radiusInPoints), toCoordinateFrom: locationPicker)
+                return centerPoint.distance(from: centerBottomPoint)
+            }
+
+            return locationPicker
+        }
+        return locationPicker
+//        if let dequeuedAnnotationView = mapView.dequeueReusableAnnotationView(withIdentifier: annotationIdentifier) {
+//            annotationView = dequeuedAnnotationView
+//            annotationView?.annotation = annotation
+//        }
+//        else {
+//            let lp = LocationPicker(annotation: annotation, reuseIdentifier: annotationIdentifier)
+//            av.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
+//            annotationView = av
+//        }
+//
+//        if let annotationView = annotationView {
+//            // Configure your annotation view here
+//            annotationView.canShowCallout = true
+//        }
+//
+//        return annotationView
     }
 
     private func zoomLevel() -> Int {

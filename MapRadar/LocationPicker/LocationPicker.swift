@@ -9,7 +9,7 @@
 import UIKit
 import MapKit
 
-class LocationPicker: UIView {
+class LocationPicker: MKAnnotationView {
     private struct Constants {
         static let defaultStrokeColor = RGB(r: 9, g: 82, b: 86).color
         static let defaultFillColor = RGB(r: 8, g: 127, b: 140).color.withAlphaComponent(0.3)
@@ -62,18 +62,27 @@ class LocationPicker: UIView {
     
     private let draggerView = DraggerView()
     private let radiusLabel = UILabel()
-    
+
+    static var reuseIdentifier: String {
+        return "LocationPickerAnnotationView"
+    }
+
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         
         commonInit()
     }
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        
+
+    override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
+        super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
         commonInit()
     }
+
+//    override init(frame: CGRect) {
+//        super.init(frame: frame)
+//
+//        commonInit()
+//    }
 
     func updateRadius(_ radius: CGFloat, animated: Bool) {
         self.radius = radius
