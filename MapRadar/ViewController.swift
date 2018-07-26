@@ -107,7 +107,11 @@ extension ViewController: MKMapViewDelegate {
         var annotationView: LocationPicker?
         guard let locationPicker = self.annotationLocationPickerView else {
             let locationPicker = LocationPicker(annotation: annotation, reuseIdentifier: annotationIdentifier)
-            locationPicker.frame = mapView.bounds
+//            locationPicker.frame = mapView.bounds
+            locationPicker.minRadius = 40.0
+            locationPicker.maxRadius = 200.0
+            locationPicker.minimumRadiusInMeters = 50.0
+            locationPicker.maximumRadiusInMeters = 1000.0
             self.annotationLocationPickerView = locationPicker
 
             locationPicker.onChangeRadiusInPoints = { [weak self] radiusInPoints in
