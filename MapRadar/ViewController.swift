@@ -9,6 +9,17 @@
 import UIKit
 import MapKit
 
+class LocationAnnotation : NSObject, MKAnnotation {
+    dynamic var coordinate : CLLocationCoordinate2D
+    var title: String!
+    var subtitle: String!
+
+    init(location coord:CLLocationCoordinate2D) {
+        self.coordinate = coord
+        super.init()
+    }
+}
+
 extension CLLocationCoordinate2D {
     func distance(from: CLLocationCoordinate2D) -> CLLocationDistance {
         let destination = CLLocation(latitude:from.latitude,longitude:from.longitude)
@@ -20,7 +31,9 @@ class ViewController: UIViewController {
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var locationPickerView: LocationPicker!
     @IBOutlet weak var coordinateLabel: UILabel!
+    @IBOutlet weak var editMode: UISwitch!
     var annotationLocationPickerView: LocationPicker!
+    var annotation: LocationAnnotation!
 
 
     let initialCoordinate = CLLocationCoordinate2DMake(48.138428, 11.615363)
@@ -28,7 +41,12 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        locationPickerView.updateRadius(150.0, animated: false)
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(ViewController.handlePan))
+        mapView.addGestureRecognizer(panGesture)
+        panGesture.delegate = self
+
+        syncRadius(150.0)
+//        locationPickerView.updateRadius(150.0, animated: false)
         locationPickerView.minRadius = 30.0
         let padding: CGFloat = 5.0
         locationPickerView.maxRadius = UIScreen.main.bounds.width / 2 - padding
@@ -42,9 +60,9 @@ class ViewController: UIViewController {
 //        let circle = MKCircle(center: initialCoordinate, radius: region.radius)
 //        mapView.add(circle)
 
-        let annotation = MKPointAnnotation()
-        annotation.coordinate = initialCoordinate
+        let annotation = LocationAnnotation(location: initialCoordinate)
         mapView.addAnnotation(annotation)
+        self.annotation = annotation
 
         locationPickerView.onChangeRadiusInPoints = { [weak self] radiusInPoints in
             let centerPoint = self!.mapView.convert(self!.locationPickerView.center, toCoordinateFrom: self!.locationPickerView)
@@ -69,6 +87,40 @@ class ViewController: UIViewController {
         }
     }
 
+    func syncRadius(_ radius: CGFloat) {
+        if annotationLocationPickerView != nil {
+            annotationLocationPickerView.updateRadius(radius, animated: false)
+        }
+        locationPickerView.updateRadius(radius, animated: false)
+    }
+
+    @objc func handlePan(sender: UIPanGestureRecognizer) {
+        if annotationLocationPickerView.interacting, !editMode.isOn {
+            return
+        }
+        switch sender.state {
+        case .began:
+            locationPickerView.alpha = 1.0
+            annotationLocationPickerView.alpha = 0.0
+            break
+        case .changed:
+            break
+        case .ended:
+            break
+//            self.annotation.coordinate = self.mapView.centerCoordinate
+//            locationPickerView.alpha = 0.0
+//            annotationLocationPickerView.alpha = 1.0
+
+        default:
+            break
+        }
+    }
+
+    @IBAction func onChangeLocationPickerMode(_ sender: UISwitch) {
+        annotationLocationPickerView.hideDragger(sender.isOn)
+        locationPickerView.hideDragger(sender.isOn)
+
+    }
     func checkCoordinates() {
         let rect = mapView.convertRegion(MKCoordinateRegionMakeWithDistance(initialCoordinate, 0.5, 0.5), toRectTo: nil)
         let point = mapView.convert(mapView.centerCoordinate, toPointTo: nil)
@@ -82,6 +134,14 @@ class ViewController: UIViewController {
 extension ViewController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
         updateRadius(locationPickerView.radius)
+        if annotation != nil {
+            self.annotation.coordinate = self.mapView.centerCoordinate
+        }
+        if annotationLocationPickerView != nil {
+            annotationLocationPickerView.alpha = 1.0
+
+        }
+        locationPickerView.alpha = 0.0
         checkCoordinates()
     }
 
@@ -107,7 +167,7 @@ extension ViewController: MKMapViewDelegate {
         var annotationView: LocationPicker?
         guard let locationPicker = self.annotationLocationPickerView else {
             let locationPicker = LocationPicker(annotation: annotation, reuseIdentifier: annotationIdentifier)
-            locationPicker.frame = mapView.bounds
+//            locationPicker.frame = mapView.bounds
             locationPicker.minRadius = 40.0
             locationPicker.maxRadius = 200.0
             locationPicker.minimumRadiusInMeters = 50.0
@@ -166,7 +226,14 @@ extension ViewController: MKMapViewDelegate {
         guard let annotationLocationPickerView = self.annotationLocationPickerView else { return }
         let regionFromRadar = MKCoordinateRegionMakeWithDistance(mapView.centerCoordinate, annotationLocationPickerView.currentRadiusInMeters, annotationLocationPickerView.currentRadiusInMeters)
         let radarRect = mapView.convertRegion(regionFromRadar, toRectTo: locationPickerView)
-        annotationLocationPickerView.updateRadius(radarRect.width, animated: true)
+        syncRadius(radarRect.width)
+//        annotationLocationPickerView.updateRadius(radarRect.width, animated: true)
+    }
+}
+
+extension ViewController: UIGestureRecognizerDelegate {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
     }
 }
 
