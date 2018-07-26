@@ -107,7 +107,7 @@ extension ViewController: MKMapViewDelegate {
         var annotationView: LocationPicker?
         guard let locationPicker = self.annotationLocationPickerView else {
             let locationPicker = LocationPicker(annotation: annotation, reuseIdentifier: annotationIdentifier)
-//            locationPicker.frame = mapView.bounds
+            locationPicker.frame = mapView.bounds
             locationPicker.minRadius = 40.0
             locationPicker.maxRadius = 200.0
             locationPicker.minimumRadiusInMeters = 50.0
@@ -118,6 +118,18 @@ extension ViewController: MKMapViewDelegate {
                 let centerPoint = annotation.coordinate
                 let centerBottomPoint = self!.mapView.convert(CGPoint(x: locationPicker.center.x, y: locationPicker.center.y + radiusInPoints), toCoordinateFrom: locationPicker)
                 return centerPoint.distance(from: centerBottomPoint)
+            }
+
+            locationPicker.onStopUpdatingRadius = { [weak self] in
+                guard let mapView = self?.mapView, let radiusInMeters = self?.locationPickerView.currentRadiusInMeters else { return }
+
+                var point = self!.locationPickerView.center
+                //            point.y -= 20
+
+                let center = annotation.coordinate
+                let viewRegion = MKCoordinateRegionMakeWithDistance(center, 4 * radiusInMeters, 4 * radiusInMeters)
+                let adjustedRegion = self?.mapView.regionThatFits(viewRegion)
+                self?.mapView.setRegion(adjustedRegion!, animated: false)
             }
 
             return locationPicker
@@ -151,10 +163,10 @@ extension ViewController: MKMapViewDelegate {
     }
     
     private func updateRadius(_ currentValue: CGFloat) {
-
-        let regionFromRadar = MKCoordinateRegionMakeWithDistance(mapView.centerCoordinate, locationPickerView.currentRadiusInMeters, locationPickerView.currentRadiusInMeters)
+        guard let annotationLocationPickerView = self.annotationLocationPickerView else { return }
+        let regionFromRadar = MKCoordinateRegionMakeWithDistance(mapView.centerCoordinate, annotationLocationPickerView.currentRadiusInMeters, annotationLocationPickerView.currentRadiusInMeters)
         let radarRect = mapView.convertRegion(regionFromRadar, toRectTo: locationPickerView)
-        locationPickerView.updateRadius(radarRect.width, animated: true)
+        annotationLocationPickerView.updateRadius(radarRect.width, animated: true)
     }
 }
 
