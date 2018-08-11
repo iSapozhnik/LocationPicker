@@ -1,4 +1,4 @@
-![](https://github.com/iSapozhnik/LocationPicker/raw/master/Assets/picker.png)
+![](https://github.com/iSapozhnik/LocationPicker/raw/master/Assets/picker1.png)
 ![](Assets/screen.png)
 
 # LocationPicker
