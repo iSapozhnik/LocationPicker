@@ -16,6 +16,8 @@ extension CLLocationCoordinate2D {
     }
 }
 
+class LocationPickerAnnotation: MKPointAnnotation {}
+
 class ViewController: UIViewController {
     @IBOutlet weak var mapView: MKMapView!
     @IBOutlet weak var locationPickerView: LocationPicker!
@@ -34,11 +36,15 @@ class ViewController: UIViewController {
         let viewRegion = MKCoordinateRegionMakeWithDistance(initialCoordinate, 500, 500)
         let adjustedRegion = mapView.regionThatFits(viewRegion)
         mapView.setRegion(adjustedRegion, animated: true)
-//
-        let region = CLCircularRegion(center: initialCoordinate, radius: 5, identifier: "geofence")
-        mapView.removeOverlays(mapView.overlays)
-        let circle = MKCircle(center: initialCoordinate, radius: region.radius)
-        mapView.add(circle)
+
+//        let region = CLCircularRegion(center: initialCoordinate, radius: 5, identifier: "geofence")
+//        mapView.removeOverlays(mapView.overlays)
+//        let circle = MKCircle(center: initialCoordinate, radius: region.radius)
+//        mapView.add(circle)
+        
+        let annotation = LocationPickerAnnotation()
+        annotation.coordinate = initialCoordinate
+        mapView.addAnnotation(annotation)
 
         locationPickerView.onChangeRadiusInPoints = { [weak self] radiusInPoints in
             let centerPoint = self!.mapView.convert(self!.locationPickerView.center, toCoordinateFrom: self!.locationPickerView)
@@ -50,7 +56,6 @@ class ViewController: UIViewController {
             guard let mapView = self?.mapView, let radiusInMeters = self?.locationPickerView.currentRadiusInMeters else { return }
 
             var point = self!.locationPickerView.center
-//            point.y -= 20
 
             let center = mapView.convert(point, toCoordinateFrom: nil)
             let viewRegion = MKCoordinateRegionMakeWithDistance(center, 4 * radiusInMeters, 4 * radiusInMeters)
@@ -77,6 +82,14 @@ extension ViewController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
         updateRadius(locationPickerView.radius)
         checkCoordinates()
+    }
+    
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        if annotation.isKind(of: LocationPickerAnnotation.self) {
+            return locationPickerView
+        }
+        
+        return nil
     }
 
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {

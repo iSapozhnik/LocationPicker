@@ -9,7 +9,14 @@
 import UIKit
 import MapKit
 
-class LocationPicker: UIView {
+enum ThumbViewPosition {
+    case bottom
+    case top
+    case right
+    case left
+}
+
+class LocationPicker: MKAnnotationView {
     private struct Constants {
         static let defaultStrokeColor = RGB(r: 9, g: 82, b: 86).color
         static let defaultFillColor = RGB(r: 8, g: 127, b: 140).color.withAlphaComponent(0.3)
@@ -22,10 +29,6 @@ class LocationPicker: UIView {
     var maximumRadiusInMeters: Double = 1100
     var currentRadiusInMeters: Double = 100
     
-    var minimumValue: CGFloat = 0.0
-    var maximumValue: CGFloat = 1.0
-    var currentValue: CGFloat = 0.11
-    
     var onChangeRadiusInPoints: ((CGFloat) -> CLLocationDistance)!
     var onStartUpdatingRadius: (() -> Void)?
     var onStopUpdatingRadius: (() -> Void)?
@@ -33,6 +36,8 @@ class LocationPicker: UIView {
     var minRadius: CGFloat = 0.0
     var maxRadius: CGFloat = 0.0
     private (set)var radius: CGFloat = Constants.defaultRadius
+    
+    var thumbViewPosition: ThumbViewPosition = .top
 
     var borderWidth: CGFloat = Constants.defaultBorderWidth {
         didSet {
@@ -69,11 +74,11 @@ class LocationPicker: UIView {
         commonInit()
     }
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        
-        commonInit()
-    }
+//    override init(frame: CGRect) {
+//        super.init(frame: frame)
+//        
+//        commonInit()
+//    }
 
     func updateRadius(_ radius: CGFloat, animated: Bool) {
         self.radius = radius
@@ -107,7 +112,6 @@ class LocationPicker: UIView {
         let location = touch.location(in: self)
         
         let deltaLocation = CGFloat(location.y - previousLocation.y)
-//        let deltaValue = (maximumValue - minimumValue) * deltaLocation / CGFloat(radarLayer.bounds.height - draggerSize)
         
         previousLocation = location
         
@@ -115,18 +119,10 @@ class LocationPicker: UIView {
             radius += deltaLocation
             radius = boundValue(value: radius, minValue: minRadius, maxValue: maxRadius)
             updateRadius(radius, animated: false)
-//            currentValue += deltaValue
-//            currentValue = boundValue(value: currentValue, minValue: minimumValue, maxValue: maximumValue)
-
-//            print("Current value: \(currentValue)")
-//            print("Delta value: \(deltaLocation)")
 
             let meters = onChangeRadiusInPoints(radius)
             let roundedMeters = 10 * (meters/10).rounded()
-            currentRadiusInMeters = meters//min(max(minimumRadiusInMeters, meters), maximumRadiusInMeters)
-
-
-//            currentRadiusInMeters = min(max(minimumRadiusInMeters, (maximumRadiusInMeters - minimumRadiusInMeters) * Double(currentValue)), maximumRadiusInMeters)
+            currentRadiusInMeters = boundValue(value: meters, minValue: minimumRadiusInMeters, maxValue: maximumRadiusInMeters)
 
             radiusLabel.text = "\(Int(roundedMeters)) m"
         }
@@ -155,6 +151,7 @@ class LocationPicker: UIView {
     private func commonInit() {
         radarLayer.radarView = self
         radarLayer.contentsScale = UIScreen.main.scale
+//        radarLayer.actions = ["position" : NSNull(), "bounds" : NSNull(), "path" : NSNull()]
         layer.addSublayer(radarLayer)
         
         dashedLine.contentsScale = UIScreen.main.scale
@@ -178,7 +175,15 @@ class LocationPicker: UIView {
     }
     
     private func updateViewsFrame() {
-        let draggerFrame = CGRect(x: bounds.width / 2 - draggerSize / 2, y: bounds.height / 2 + radius - draggerSize / 2, width: draggerSize, height: draggerSize)
+        var draggerFrame: CGRect
+        switch thumbViewPosition {
+        case .bottom:
+            draggerFrame = CGRect(x: bounds.width / 2 - draggerSize / 2, y: bounds.height / 2 + radius - draggerSize / 2, width: draggerSize, height: draggerSize)
+        case .top:
+            draggerFrame = CGRect(x: bounds.width / 2 - draggerSize / 2, y: bounds.height / 2 - radius - draggerSize / 2, width: draggerSize, height: draggerSize)
+        default:
+            draggerFrame = CGRect(x: bounds.width / 2 - draggerSize / 2, y: bounds.height / 2 + radius - draggerSize / 2, width: draggerSize, height: draggerSize)
+        }
         draggerView.frame = draggerFrame
         
         var radiusLabelFrame = draggerFrame
@@ -205,7 +210,7 @@ class LocationPicker: UIView {
         CATransaction.commit()
     }
     
-    private func boundValue(value: CGFloat, minValue: CGFloat, maxValue: CGFloat) -> CGFloat {
+    private func boundValue<T>(value: T, minValue: T, maxValue: T) -> T where T: Comparable {
         return min(max(value, minValue), maxValue)
     }
     
