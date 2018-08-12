@@ -111,7 +111,17 @@ class LocationPicker: MKAnnotationView {
         
         let location = touch.location(in: self)
         
-        let deltaLocation = CGFloat(location.y - previousLocation.y)
+        var deltaLocation: CGFloat
+        switch thumbViewPosition {
+        case .bottom:
+            deltaLocation = CGFloat(location.y - previousLocation.y)
+        case .top:
+            deltaLocation = CGFloat(previousLocation.y - location.y)
+        case .left:
+            deltaLocation = CGFloat(previousLocation.x - location.x)
+        case .right:
+            deltaLocation = CGFloat(location.x - previousLocation.x)
+        }
         
         previousLocation = location
         
@@ -175,18 +185,9 @@ class LocationPicker: MKAnnotationView {
     }
     
     private func updateViewsFrame() {
-        var draggerFrame: CGRect
-        switch thumbViewPosition {
-        case .bottom:
-            draggerFrame = CGRect(x: bounds.width / 2 - draggerSize / 2, y: bounds.height / 2 + radius - draggerSize / 2, width: draggerSize, height: draggerSize)
-        case .top:
-            draggerFrame = CGRect(x: bounds.width / 2 - draggerSize / 2, y: bounds.height / 2 - radius - draggerSize / 2, width: draggerSize, height: draggerSize)
-        default:
-            draggerFrame = CGRect(x: bounds.width / 2 - draggerSize / 2, y: bounds.height / 2 + radius - draggerSize / 2, width: draggerSize, height: draggerSize)
-        }
-        draggerView.frame = draggerFrame
+        draggerView.frame = thumbViewFrameFor(position: thumbViewPosition)
         
-        var radiusLabelFrame = draggerFrame
+        var radiusLabelFrame = draggerView.frame
         radiusLabelFrame.origin.x = radiusLabelFrame.origin.x + draggerSize/2 + 15
         radiusLabelFrame.origin.y = radiusLabelFrame.origin.y - (draggerSize/2 + 15)
         radiusLabelFrame.size.width = 50.0
@@ -216,5 +217,18 @@ class LocationPicker: MKAnnotationView {
     
     private func valueInMetersFrom(currentValue: Double, minInMeters: Double, maxInMeters: Double) -> Double {
         return (maxInMeters - minInMeters) * currentValue
+    }
+    
+    private func thumbViewFrameFor(position: ThumbViewPosition) -> CGRect {
+        switch position {
+        case .bottom:
+            return CGRect(x: bounds.width / 2 - draggerSize / 2, y: bounds.height / 2 + radius - draggerSize / 2, width: draggerSize, height: draggerSize)
+        case .top:
+            return CGRect(x: bounds.width / 2 - draggerSize / 2, y: bounds.height / 2 - radius - draggerSize / 2, width: draggerSize, height: draggerSize)
+        case .right:
+            return CGRect(x: bounds.width / 2 + radius - draggerSize / 2, y: bounds.height / 2 - draggerSize / 2, width: draggerSize, height: draggerSize)
+        case .left:
+            return CGRect(x: bounds.width / 2 - radius - draggerSize / 2, y: bounds.height / 2 - draggerSize / 2, width: draggerSize, height: draggerSize)
+        }
     }
 }
