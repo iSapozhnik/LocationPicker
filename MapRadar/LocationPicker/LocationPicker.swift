@@ -37,7 +37,7 @@ class LocationPicker: MKAnnotationView {
     var maxRadius: CGFloat = 0.0
     private (set)var radius: CGFloat = Constants.defaultRadius
     
-    var thumbViewPosition: ThumbViewPosition = .top
+    var thumbViewPosition: ThumbViewPosition = .bottom
 
     var borderWidth: CGFloat = Constants.defaultBorderWidth {
         didSet {
@@ -62,6 +62,7 @@ class LocationPicker: MKAnnotationView {
     
     var previousLocation = CGPoint()
     
+    private var elasticDecorator: ElasticDecorator!
     private let radarLayer = RadarViewLayer()
     private let dashedLine = DashedLine()
     
@@ -126,8 +127,11 @@ class LocationPicker: MKAnnotationView {
         previousLocation = location
         
         if draggerView.highlighted {
+            
             radius += deltaLocation
-            radius = boundValue(value: radius, minValue: minRadius, maxValue: maxRadius)
+            elasticDecorator.layoutControlPoints(radius: radius)
+
+//            radius = boundValue(value: radius, minValue: minRadius, maxValue: maxRadius)
             updateRadius(radius, animated: false)
 
             let meters = onChangeRadiusInPoints(radius)
@@ -159,13 +163,16 @@ class LocationPicker: MKAnnotationView {
     }
     
     private func commonInit() {
+        elasticDecorator = ElasticDecorator(view: self)
+        
+        radarLayer.elasticDecorator = elasticDecorator
         radarLayer.radarView = self
         radarLayer.contentsScale = UIScreen.main.scale
 //        radarLayer.actions = ["position" : NSNull(), "bounds" : NSNull(), "path" : NSNull()]
         layer.addSublayer(radarLayer)
         
         dashedLine.contentsScale = UIScreen.main.scale
-        layer.addSublayer(dashedLine)
+//        layer.addSublayer(dashedLine)
         
         draggerView.isUserInteractionEnabled = false
         addSubview(draggerView)

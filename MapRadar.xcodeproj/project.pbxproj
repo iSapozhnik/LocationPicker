@@ -19,6 +19,8 @@
 		FF5FA0E720D5189B0038443E /* DashedLineLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5FA0E620D5189B0038443E /* DashedLineLayer.swift */; };
 		FF5FA0E920D518BC0038443E /* LocationPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5FA0E820D518BC0038443E /* LocationPicker.swift */; };
 		FF5FA0EC20D518E30038443E /* RGB.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5FA0EB20D518E30038443E /* RGB.swift */; };
+		FF76C5EC212070930011D4E6 /* ElasticDecorator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF76C5EB212070930011D4E6 /* ElasticDecorator.swift */; };
+		FF76C5EE212071780011D4E6 /* UIView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF76C5ED212071780011D4E6 /* UIView+Extensions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -36,6 +38,8 @@
 		FF5FA0E620D5189B0038443E /* DashedLineLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashedLineLayer.swift; sourceTree = "<group>"; };
 		FF5FA0E820D518BC0038443E /* LocationPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationPicker.swift; sourceTree = "<group>"; };
 		FF5FA0EB20D518E30038443E /* RGB.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RGB.swift; sourceTree = "<group>"; };
+		FF76C5EB212070930011D4E6 /* ElasticDecorator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElasticDecorator.swift; sourceTree = "<group>"; };
+		FF76C5ED212071780011D4E6 /* UIView+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Extensions.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,6 +88,7 @@
 			isa = PBXGroup;
 			children = (
 				FF5FA0E820D518BC0038443E /* LocationPicker.swift */,
+				FF76C5EB212070930011D4E6 /* ElasticDecorator.swift */,
 				FF5FA0E420D518850038443E /* DraggerView.swift */,
 				FF5FA0DF20D517F20038443E /* Layers */,
 				FF5FA0EA20D518D70038443E /* Utilities */,
@@ -105,6 +110,7 @@
 			isa = PBXGroup;
 			children = (
 				FF5FA0EB20D518E30038443E /* RGB.swift */,
+				FF76C5ED212071780011D4E6 /* UIView+Extensions.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -182,7 +188,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FF76C5EC212070930011D4E6 /* ElasticDecorator.swift in Sources */,
 				FF5FA0CF20D517CB0038443E /* ViewController.swift in Sources */,
+				FF76C5EE212071780011D4E6 /* UIView+Extensions.swift in Sources */,
 				FF5FA0E520D518850038443E /* DraggerView.swift in Sources */,
 				FF5FA0E920D518BC0038443E /* LocationPicker.swift in Sources */,
 				FF5FA0E720D5189B0038443E /* DashedLineLayer.swift in Sources */,
