@@ -10,51 +10,86 @@ import UIKit
 
 class ElasticDecorator {
     private weak var view: UIView!
-    
-    let l2ControlPointView = UIView()
-    let l1ControlPointView = UIView()
-    let cControlPointView = UIView()
-    let r1ControlPointView = UIView()
-    let r2ControlPointView = UIView()
+
+    var p0 = CGPoint.zero
+    var p1 = CGPoint.zero
+    var p2 = CGPoint.zero
+    var p3 = CGPoint.zero
+
+    let c0l = UIView()
+    let c0r = UIView()
+
+    let c1t = UIView()
+    let c1b = UIView()
+
+    let c2l = UIView()
+    let c2r = UIView()
+
+    let c3t = UIView()
+    let c3b = UIView()
     
     init(view: UIView) {
         self.view = view
         commonInit()
     }
-    
-    func layoutControlPoints(radius: CGFloat) {
-        let const: CGFloat = 0.552284749831
-        let center = view.center
 
-        l2ControlPointView.center = CGPoint(x: center.x - radius , y: center.y + radius * const)
-        l1ControlPointView.center = CGPoint(x: center.x - radius * const , y: center.y + radius)
-        
-//        r1ControlPointView.center = CGPoint(x: center.x + radius * const , y: center.y + radius)
-//        r2ControlPointView.center = CGPoint(x: center.x + radius, y: center.y + radius * const)
+    func layoutControlPoints(radius: CGFloat, offset: CGFloat = 0.0) {
+        let r = radius
+        let d = 2 * r
 
-        r1ControlPointView.center = CGPoint(x: center.x + radius , y: center.y + radius * const)
-        r2ControlPointView.center = CGPoint(x: center.x + radius, y: center.y)
-        
-        cControlPointView.center = CGPoint(x: center.x , y: center.y + radius)
+        p0 = CGPoint(x: r, y: offset)
+        p1 = CGPoint(x: d, y: r)
+        p2 = CGPoint(x: r, y: d)
+        p3 = CGPoint(x: 0, y: r)
+
+        let n: Double = 4
+
+        let const: CGFloat = CGFloat((4/3)*tan(M_PI/(2*n))) //0.552284749831
+        let cpLenght = r * const
+
+        c0l.center = CGPoint(x: r - cpLenght - pow(abs(offset), 0.1), y: p0.y)
+        c0r.center = CGPoint(x: r + cpLenght + pow(abs(offset), 0.1), y: p0.y)
+
+        c1t.center = CGPoint(x: p1.x, y: r - cpLenght)
+        c1b.center = CGPoint(x: p1.x, y: r + cpLenght)
+
+        c2r.center = CGPoint(x: r + cpLenght, y: p2.y)
+        c2l.center = CGPoint(x: r - cpLenght, y: p2.y)
+
+        c3b.center = CGPoint(x: p3.x, y: r + cpLenght)
+        c3t.center = CGPoint(x: p3.x, y: r - cpLenght)
+    }
+
+    func path() -> UIBezierPath {
+        let cp0l = c0l.lp_center()
+        let cp0r = c0r.lp_center()
+
+        let cp1t = c1t.lp_center()
+        let cp1b = c1b.lp_center()
+
+        let cp2l = c2l.lp_center()
+        let cp2r = c2r.lp_center()
+
+        let cp3t = c3t.lp_center()
+        let cp3b = c3b.lp_center()
+
+        let path = UIBezierPath()
+
+        path.move(to: p0)
+        path.addCurve(to: p1, controlPoint1: cp0r, controlPoint2: cp1t)
+        path.addCurve(to: p2, controlPoint1: cp1b, controlPoint2: cp2r)
+        path.addCurve(to: p3, controlPoint1: cp2l, controlPoint2: cp3b)
+        path.addCurve(to: p0, controlPoint1: cp3t, controlPoint2: cp0l)
+        return path
     }
     
     private func commonInit() {
-        l2ControlPointView.frame = CGRect(x: 0.0, y: 0.0, width: 3.0, height: 3.0)
-        l1ControlPointView.frame = CGRect(x: 0.0, y: 0.0, width: 3.0, height: 3.0)
-        cControlPointView.frame = CGRect(x: 0.0, y: 0.0, width: 3.0, height: 3.0)
-        r1ControlPointView.frame = CGRect(x: 0.0, y: 0.0, width: 3.0, height: 3.0)
-        r2ControlPointView.frame = CGRect(x: 0.0, y: 0.0, width: 3.0, height: 3.0)
-        
-        l2ControlPointView.backgroundColor = .blue
-        l1ControlPointView.backgroundColor = .blue
-        cControlPointView.backgroundColor = .red
-        r1ControlPointView.backgroundColor = .red
-        r2ControlPointView.backgroundColor = .black
-        
-        view.addSubview(l2ControlPointView)
-        view.addSubview(l1ControlPointView)
-        view.addSubview(cControlPointView)
-        view.addSubview(r1ControlPointView)
-        view.addSubview(r2ControlPointView)
+        let controlPoints = [c0l, c0r, c1t, c1b, c2l, c2r, c3t, c3b]
+
+        controlPoints.forEach { controlPoint in
+            controlPoint.frame = CGRect(x: 0.0, y: 0.0, width: 3.0, height: 3.0)
+            controlPoint.backgroundColor = .red
+            view.addSubview(controlPoint)
+        }
     }
 }

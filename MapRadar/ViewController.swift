@@ -28,6 +28,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        locationPickerView.frame = mapView.bounds
         locationPickerView.updateRadius(150.0, animated: false)
         locationPickerView.minRadius = 30.0
         let padding: CGFloat = 5.0
@@ -47,6 +48,8 @@ class ViewController: UIViewController {
         mapView.addAnnotation(annotation)
 
         locationPickerView.onChangeRadiusInPoints = { [weak self] radiusInPoints in
+            self?.locationPickerView.frame = self!.mapView.bounds
+
             let centerPoint = self!.mapView.convert(self!.locationPickerView.center, toCoordinateFrom: self!.locationPickerView)
             let centerBottomPoint = self!.mapView.convert(CGPoint(x: self!.locationPickerView.center.x, y: self!.locationPickerView.center.y + radiusInPoints), toCoordinateFrom: self!.locationPickerView)
             return centerPoint.distance(from: centerBottomPoint)
@@ -116,6 +119,7 @@ extension ViewController: MKMapViewDelegate {
         let regionFromRadar = MKCoordinateRegionMakeWithDistance(mapView.centerCoordinate, locationPickerView.currentRadiusInMeters, locationPickerView.currentRadiusInMeters)
         let radarRect = mapView.convertRegion(regionFromRadar, toRectTo: locationPickerView)
         locationPickerView.updateRadius(radarRect.width, animated: true)
+        locationPickerView.elasticDecorator.layoutControlPoints(radius: radarRect.width)
     }
 }
 

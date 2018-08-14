@@ -27,36 +27,18 @@ class RadarViewLayer: CALayer {
         
         let pi = Double.pi
         let innerBounds = bounds.insetBy(dx: radarView.borderWidth / 2.0, dy: radarView.borderWidth / 2.0)
-        
-        let path = UIBezierPath()
-        
-        let l1ControlPointView = elasticDecorator.l1ControlPointView
-        let l2ControlPointView = elasticDecorator.l2ControlPointView
-        let r1ControlPointView = elasticDecorator.r1ControlPointView
-        let r2ControlPointView = elasticDecorator.r2ControlPointView
-        let cControlPointView = elasticDecorator.cControlPointView
-        
-        path.addArc(withCenter: CGPoint(x: innerBounds.width / 2, y: innerBounds.height / 2), radius: innerBounds.width / 2 - radarView.borderWidth / 2.0, startAngle: CGFloat(pi), endAngle: 0, clockwise: true)
-//        path.addArc(withCenter: CGPoint(x: innerBounds.width / 2, y: innerBounds.height / 2), radius: innerBounds.width / 2 - radarView.borderWidth / 2.0, startAngle: 0, endAngle: CGFloat(pi), clockwise: true)
-        
-        path.addCurve(to: cControlPointView.lp_center(usePresentationIfPossible: false), controlPoint1: r2ControlPointView.lp_center(usePresentationIfPossible: false), controlPoint2: r1ControlPointView.lp_center(usePresentationIfPossible: false))
-//        path.addCurve(to: CGPoint(x: innerBounds.width, y: innerBounds.height / 2), controlPoint1: r1ControlPointView.lp_center(usePresentationIfPossible: false), controlPoint2: r2ControlPointView.lp_center(usePresentationIfPossible: false))
-//        path.close()
-        
-        
-//        path.addCurve(to: <#T##CGPoint#>, controlPoint1: <#T##CGPoint#>, controlPoint2: <#T##CGPoint#>)
-//        path.addLineToPoint(CGPoint(x: 0.0, y: l3ControlPointView.dg_center(false).y))
-//        path.addCurveToPoint(l1ControlPointView.dg_center(false), controlPoint1: l3ControlPointView.dg_center(false), controlPoint2: l2ControlPointView.dg_center(false))
-        
-        
-//        let path = UIBezierPath(ovalIn: innerBounds)
+
+        let r = innerBounds.width / 2
+
+//        elasticDecorator.updateRadius(r)
+        let path = elasticDecorator.path()
 
         ctx.setLineWidth(radarView.borderWidth)
         ctx.setFillColor(radarView.fillColor.cgColor)
         ctx.setStrokeColor(radarView.borderColor.cgColor)
         
-//        ctx.addPath(path.cgPath)
-//        ctx.fillPath()
+        ctx.addPath(path.cgPath)
+        ctx.fillPath()
         
         ctx.addPath(path.cgPath)
         ctx.strokePath()

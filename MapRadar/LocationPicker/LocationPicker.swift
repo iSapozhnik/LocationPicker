@@ -26,18 +26,19 @@ class LocationPicker: MKAnnotationView {
     }
     
     var minimumRadiusInMeters: Double = 100
-    var maximumRadiusInMeters: Double = 1100
+    var maximumRadiusInMeters: Double = 500
     var currentRadiusInMeters: Double = 100
     
     var onChangeRadiusInPoints: ((CGFloat) -> CLLocationDistance)!
     var onStartUpdatingRadius: (() -> Void)?
     var onStopUpdatingRadius: (() -> Void)?
     
-    var minRadius: CGFloat = 0.0
-    var maxRadius: CGFloat = 0.0
+    var minRadius: CGFloat = 40.0
+    var maxRadius: CGFloat = 250.0
     private (set)var radius: CGFloat = Constants.defaultRadius
+    private var offset: CGFloat = 0
     
-    var thumbViewPosition: ThumbViewPosition = .bottom
+    var thumbViewPosition: ThumbViewPosition = .top
 
     var borderWidth: CGFloat = Constants.defaultBorderWidth {
         didSet {
@@ -62,7 +63,7 @@ class LocationPicker: MKAnnotationView {
     
     var previousLocation = CGPoint()
     
-    private var elasticDecorator: ElasticDecorator!
+    var elasticDecorator: ElasticDecorator!
     private let radarLayer = RadarViewLayer()
     private let dashedLine = DashedLine()
     
@@ -126,20 +127,25 @@ class LocationPicker: MKAnnotationView {
         
         previousLocation = location
         
-        if draggerView.highlighted {
+        if draggerView.highlighted, radiusIsValid(for: deltaLocation) {
             
             radius += deltaLocation
-            elasticDecorator.layoutControlPoints(radius: radius)
 
-//            radius = boundValue(value: radius, minValue: minRadius, maxValue: maxRadius)
+            radius = boundValue(value: radius, minValue: minRadius, maxValue: maxRadius)
             updateRadius(radius, animated: false)
 
             let meters = onChangeRadiusInPoints(radius)
             let roundedMeters = 10 * (meters/10).rounded()
             currentRadiusInMeters = boundValue(value: meters, minValue: minimumRadiusInMeters, maxValue: maximumRadiusInMeters)
-
             radiusLabel.text = "\(Int(roundedMeters)) m"
+            offset = 0
+        } else {
+            offset += deltaLocation
+            radarLayer.setNeedsDisplay()
+            updateViewsFrame()
         }
+//        elasticDecorator.updateRadius(radius)
+        elasticDecorator.layoutControlPoints(radius: radius, offset: -offset)
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -151,6 +157,9 @@ class LocationPicker: MKAnnotationView {
             self.radiusLabel.alpha = 0.0
         }, completion: nil)
         draggerView.highlighted = false
+
+        offset = 0
+        elasticDecorator.layoutControlPoints(radius: radius, offset: -offset)
     }
     
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
@@ -224,6 +233,11 @@ class LocationPicker: MKAnnotationView {
     
     private func valueInMetersFrom(currentValue: Double, minInMeters: Double, maxInMeters: Double) -> Double {
         return (maxInMeters - minInMeters) * currentValue
+    }
+
+    private func radiusIsValid(for deltaLocation: CGFloat) -> Bool {
+//        guard let radius = currentRadiusInMeters else { return false }
+        return (currentRadiusInMeters < maximumRadiusInMeters || deltaLocation < 0) && (currentRadiusInMeters > minimumRadiusInMeters || deltaLocation > 0)
     }
     
     private func thumbViewFrameFor(position: ThumbViewPosition) -> CGRect {
